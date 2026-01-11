@@ -10,7 +10,7 @@
     "create:template": "tsx ./scripts/create-template.ts",
     "build:templates": "tsx ./scripts/build-templates.ts --dev",
     "build:templates:dev": "tsx ./scripts/build-templates.ts --dev",
-    "build:templates:prod": "tsx ./scripts/build-templates.ts",
+    "build:templates:prod": "tsx ./scripts/build-templates.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
