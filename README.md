@@ -131,12 +131,10 @@ NEXT_PUBLIC_POSTHOG_HOST=
 Build all E2B sandbox templates (required before running the app):
 
 ```
-npm run build:templates -- --prefix=your-username
+npm run build:templates
 ```
 
-Replace `your-username` with a unique identifier (e.g., your GitHub username). This prevents naming conflicts since E2B template names are globally unique.
-
-This will build all templates in development mode. See [Building sandbox templates](#building-sandbox-templates) for more details.
+This will build all templates in development mode. If you set `E2B_TEMPLATE_PREFIX` in your `.env.local`, templates will be prefixed with your unique identifier to avoid naming conflicts. See [Building sandbox templates](#building-sandbox-templates) for more details.
 
 ### 5. Start the development server
 
@@ -172,17 +170,26 @@ The repository includes example templates in [sandbox-templates/](sandbox-templa
 
 From the root directory, run:
 ```
-npm run build:templates -- --prefix=your-username
+npm run build:templates
 ```
 
-Replace `your-username` with a unique identifier (e.g., your GitHub username). This prevents naming conflicts with other users since E2B template names are globally unique.
+This will automatically build all templates in development mode (with `-dev` suffix).
 
-This will automatically build all templates in development mode (with `-dev` suffix). For production builds:
-```
-npm run build:templates:prod -- --prefix=your-username
+If you set `E2B_TEMPLATE_PREFIX` in your `.env.local`, templates will be prefixed (e.g., `john-nextjs-developer-dev`). This is recommended to avoid naming conflicts since E2B template names are globally unique.
+
+After building, update [lib/templates.ts](lib/templates.ts) with your template names:
+```typescript
+// If you used prefix "john", update the keys accordingly:
+[getTemplateIdSuffix('john-nextjs-developer')]: {
+  name: 'Next.js developer',
+  // ... rest of config
+},
 ```
 
-The prefix is optional but highly recommended to avoid conflicts.
+For production builds:
+```
+npm run build:templates:prod
+```
 
 **Manual build - Build templates individually:**
 
@@ -225,7 +232,8 @@ This interactive script will:
 1. Ask for your template name, base image (Node.js or Python), port, and other details
 2. Generate all the necessary boilerplate files
 3. Show you the next steps to get the template running
-4. Optionally, add a logo under [public/thirdparty/templates](public/thirdparty/templates)
+
+Optionally, add a logo under [public/thirdparty/templates](public/thirdparty/templates)
 
 For more information on the Template API, see the [E2B Template documentation](https://e2b.dev/docs/template/defining-template)
 

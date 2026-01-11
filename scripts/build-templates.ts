@@ -7,16 +7,13 @@ import { join } from 'path'
 const TEMPLATES_DIR = join(__dirname, '..', 'sandbox-templates')
 const isDev = process.argv.includes('--dev')
 const buildScript = isDev ? 'build:dev' : 'build:prod'
-
-// Get optional prefix from --prefix=your-prefix
-const prefixArg = process.argv.find(arg => arg.startsWith('--prefix='))
-const prefix = prefixArg ? prefixArg.split('=')[1] : null
+const prefix = process.env.E2B_TEMPLATE_PREFIX
 
 if (prefix) {
   console.log(`\nBuilding all E2B sandbox templates with prefix: ${prefix} (${isDev ? 'development' : 'production'} mode)...\n`)
 } else {
   console.log(`\nBuilding all E2B sandbox templates (${isDev ? 'development' : 'production'} mode)...\n`)
-  console.log('Note: Use --prefix=your-username to avoid name conflicts with other users\n')
+  console.log('Note: Set E2B_TEMPLATE_PREFIX in .env.local to avoid name conflicts\n')
 }
 
 // Get all template directories
@@ -51,17 +48,13 @@ for (const templateDir of templateDirs) {
 
     // Build template
     console.log(`  → Running ${buildScript}...`)
-    const env = { ...process.env }
-    if (prefix) {
-      env.E2B_TEMPLATE_PREFIX = prefix
-    }
     execSync(`npm run ${buildScript}`, {
       cwd: templatePath,
       stdio: 'inherit',
-      env,
     })
 
-    console.log(`  ✓ Successfully built ${templateDir}`)
+    const builtName = prefix ? `${prefix}-${templateDir}` : templateDir
+    console.log(`  ✓ Successfully built ${builtName}${isDev ? '-dev' : ''}`)
     successCount++
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -86,5 +79,13 @@ if (failures.length > 0) {
   process.exit(1)
 } else {
   console.log('\nAll templates built successfully!')
+
+  if (prefix) {
+    console.log('\nUpdate lib/templates.ts with your prefixed template IDs:')
+    templateDirs.forEach((dir) => {
+      console.log(`  [getTemplateIdSuffix('${prefix}-${dir}')]: { ... }`)
+    })
+  }
+
   console.log('\nYou can now start the development server with: npm run dev')
 }
